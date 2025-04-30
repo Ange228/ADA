@@ -147,9 +147,16 @@ Usuarios con datos completos: 999,985
 ---
 
 ## 🐍 Autor
-Este script fue diseñado con eficiencia y claridad para cargar redes sociales masivas, con herramientas estándar de Python y visualización con `matplotlib`. 
-
+Este script fue diseñado con eficiencia y claridad para cargar redes sociales masivas, con herramientas estándar de Python y visualización con `matplotlib`.
 
 ---
 
 ¡Espero que este proyecto te ayude a manejar grandes volúmenes de datos de forma efectiva!
+
+
+---
+
+## Integrantes del proyecto
+
+- Diego Nova
+- Angélica Castillo
