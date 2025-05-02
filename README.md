@@ -1,12 +1,11 @@
 # 📊 Cargador de Datos para Red Social
 
-Este proyecto permite **cargar, procesar y visualizar** datos de una red social a gran escala desde archivos de texto. Está optimizado para manejar millones de usuarios y sus conexiones de forma eficiente y legible.
-
+Este proyecto permite **cargar, procesar y visualizar** datos de una red social a gran escala desde archivos de texto. Por el momento logramos que la carga sea exitosa usando diccionarios. 
 ---
 
 ## 📁 Estructura del Proyecto
 
-- `CargadorRedSocial`: Clase que gestiona la carga de ubicaciones y conexiones.
+- `CargadorRedSocial`: Clase que gestiona las funciones para carga de ubicaciones y conexiones. 
 - `graficar_tiempos`: Función para visualizar gráficamente los tiempos de carga.
 - `main`: Función principal que ejecuta todo el flujo de trabajo.
 
@@ -18,16 +17,15 @@ Este proyecto permite **cargar, procesar y visualizar** datos de una red social 
 - Lee un archivo de ubicaciones con formato `latitud,longitud` por línea.
 - Almacena los datos en un diccionario:  
   `ubicaciones = {id_usuario: (lat, long)}`
-- Reporta progreso cada cierto número de líneas.
+- Reporta progreso cada cierto número de líneas (100000).
 - Uso eficiente de memoria con `gc.collect()`.
 
 ### ✅ Carga de conexiones
-- Lee una lista de adyacencia por usuario (usuarios que sigue).
 - Utiliza `defaultdict(list)` para almacenar automáticamente listas vacías si el usuario aún no ha sido agregado:
   ```python
   self.conexiones = defaultdict(list)
   ```
-  Esto permite hacer cosas como:
+  Esto permite hacer co como:sas
   ```python
   self.conexiones[4].append(8)
   ```
@@ -83,7 +81,9 @@ pip install matplotlib
 
 ## 🧠 Sobre `defaultdict(list)`
 
-El uso de `defaultdict` permite ahorrar código y evitar errores como `KeyError`. En lugar de escribir:
+El uso de `defaultdict` permite ahorrar código y evitar errores como `KeyError`.
+Porque defaultdict(list) se encarga de inicializar automáticamente una lista vacía al acceder por primera vez a una clave. 
+En lugar de escribir:
 
 ```python
 if usuario_id not in conexiones:
