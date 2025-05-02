@@ -110,5 +110,5 @@ Y un **gráfico de barras** mostrando los tiempos de carga.
 
 ## 👥 Integrantes
 
-- Diego Nova
+- Diego Nova rosas
 - Angélica Castillo
