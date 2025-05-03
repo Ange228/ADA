@@ -1,5 +1,6 @@
 import time
 import os
+import gc
 import polars as pl
 from collections import defaultdict
 import matplotlib.pyplot as plt
@@ -36,31 +37,43 @@ class CargadorRedSocial:
             print(f"Error con carga ubi: {e}\n") 
  
     def cargar_conexiones(self, archivo, lote=100000):
-        """Carga conexiones desde archivo con formato: id,id1,id2,..."""
+        """Carga conexiones desde archivo con formato: id,id1,id2,... usando Polars"""
         print(f"\nCargando conexiones desde {archivo}...")
         inicio = time.time()
         contador = total_conex = 0
-        
+
         try:
-            with open(archivo, 'r') as f:
-                for line_num, linea in enumerate(f, 1):
-                    try:
-                        ids = list(map(int, filter(None, linea.strip().split(','))))
-                        if ids:
-                            self.conexiones[ids[0]] = ids[1:]
-                            contador += 1
-                            total_conex += len(ids[1:])
-                            
-                            #if contador % lote == 0:
-                            #    print(f"Procesados {contador:,} usuarios ({total_conex:,} conexiones)...")
-                    except Exception as e:
-                        print(f"Línea {line_num}: Error - {e}")
-        
+            # Leer todo el archivo como una sola columna de líneas completas
+            df = pl.read_csv(
+                archivo,
+                has_header=False,
+                separator='\n',
+                new_columns=['linea']
+            )
+
+            for line_num, row in enumerate(df.iter_rows(named=True), 1):# recorremos linea por linea
+                #cada linea devuelve un diccionario (linea: 1,424,53,213...)
+                try:
+                    # Convertir la línea en lista de IDs enteros
+                    ids = list(map(int, filter(None, row['linea'].strip().split(','))))# filtramos los elementos en caso existan caracteres x
+                    # por ultimo guardamos todos los datos en ids (ids = 123,424,553,..)
+                    if ids:
+                        self.conexiones[ids[0]] = ids[1:]
+                        contador += 1
+                        total_conex += len(ids[1:])
+                        
+                        
+                        # if contador % lote == 0:
+                        #     print(f"Procesados {contador:,} usuarios ({total_conex:,} conexiones)...")
+                except Exception as e:
+                    print(f"Línea {line_num}: Error - {e}")
+
         except Exception as e:
             print(f"Error con conexiones: {e}")
-        
+
         print(f"{contador:,} usuarios con {total_conex:,} conexiones cargadas en {time.time() - inicio:.2f}s")
-        print(f"Promedio: {total_conex/contador:.1f} conexiones/usuario")
+        if contador > 0:
+            print(f"Promedio: {total_conex / contador:.1f} conexiones/usuario")
 
     def resumen_datos(self):
         """Muestra estadísticas de los datos cargados"""
@@ -69,18 +82,19 @@ class CargadorRedSocial:
         print("="*50)
         
         print(f"\n● Ubicaciones cargadas: {len(self.ubicaciones):,}")
-        #print(f"● Usuarios con conexiones: {len(self.conexiones):,}") el tamaño de conexiones
-        print(f"● Total conexiones: {sum(len(v) for v in self.conexiones.values()):,}")
+        #print(f"● Usuarios con conexiones: {len(self.conexiones):,}")
+        #print(f"● Total conexiones: {sum(len(v) for v in self.conexiones.values()):,}")
         
-        if self.ubicaciones and self.conexiones:
-            comunes = set(self.ubicaciones) & set(self.conexiones)
-            print(f"\n● Usuarios completos (ubicación + conexiones): {len(comunes):,}")
+        print("\nEJEMPLO CON USUARIO:")
+        if 1 in self.conexiones:
+            print(f"Conexiones del usuario 1: {self.conexiones[1]}")
+        else:
+            print("Usuario 1 no tiene conexiones.")
             
-            # Ejemplo de datos
-            ej_id = next(iter(comunes), 1)
-            print(f"\nEjemplo usuario {ej_id}:")
-            print(f"  Ubicación: {self.ubicaciones.get(ej_id)}")
-            print(f"  Conexiones: {self.conexiones.get(ej_id)[:5]} [...] (total: {len(self.conexiones.get(ej_id, []))})")
+        if 1 in self.ubicaciones:
+            print(f"Ubicación del usuario 1: {self.ubicaciones[1]}")
+        else:
+            print("Usuario 1 no tiene ubicación.")
 
 
 def graficar_tiempos(tiempos):
